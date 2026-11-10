@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Parul: Software and AI Engineer</title>
-<meta name="description" content="Parul, software engineer in Boston. Java, Spring Boot and Angular, and AI agent systems in Python.">
+<title>Parul Jindal: Software Engineer, Backend and AI Systems</title>
+<meta name="description" content="Parul Jindal, software engineer. Java, Spring Boot and Angular, and AI agent systems in Python.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -23,26 +23,27 @@ nav ul{list-style:none;display:flex;gap:22px;margin:0;padding:0;font-size:15px}
 nav ul a{color:var(--soft);text-decoration:none}
 nav ul a:hover{color:var(--ink)}
 
-.hero{padding:72px 0 0;max-width:820px}
-.hero h1{font-size:clamp(44px,7.5vw,84px);font-weight:800;letter-spacing:-.035em;margin-bottom:26px}
-.hero h1 .bar{display:block;height:10px;width:220px;border-radius:6px;margin-top:22px;
+.hero{padding:64px 0 0;max-width:820px}
+.hero h1{font-size:clamp(38px,5vw,54px);font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
+.hero .role{font-family:"Bricolage Grotesque",sans-serif;font-size:clamp(20px,2.4vw,25px);font-weight:500;color:#a5b4fc;margin:0 0 6px}
+.hero .bar{display:block;height:6px;width:140px;border-radius:4px;margin:22px 0 26px;
   background:linear-gradient(90deg,var(--teal),var(--sky),var(--ind),var(--vio),var(--amb),var(--pink))}
-.hero p{font-size:20px;color:var(--soft);margin:0 0 14px;max-width:680px}
-.hero p strong{color:var(--ink);font-weight:600}
+.hero p{font-size:18.5px;color:#c3c8d8;margin:0 0 14px;max-width:680px}
+.hero p strong{color:#fff;font-weight:600}
 .links{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
 .btn{display:inline-block;padding:11px 20px;border-radius:999px;font-weight:600;text-decoration:none;font-size:16px}
 .btn.main{background:var(--ink);color:#fff}.btn.main:hover{background:var(--ind)}
 .btn.alt{border:1.5px solid var(--ink);color:var(--ink)}.btn.alt:hover{background:#fff}
 
 section{padding:96px 0 0}
-section h2{font-size:clamp(30px,4.2vw,42px);font-weight:800;letter-spacing:-.02em;margin-bottom:24px}
+section h2{font-size:clamp(26px,3.4vw,34px);font-weight:700;letter-spacing:-.02em;margin-bottom:24px}
 
 .project{display:grid;grid-template-columns:1.15fr 1fr;gap:0;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden;text-decoration:none;color:inherit;transition:box-shadow .2s ease,transform .2s ease}
 .project:hover{box-shadow:0 20px 40px -24px rgba(79,70,229,.45);transform:translateY(-3px)}
 .project .shot{background:#f3f4fb;display:flex;align-items:center;padding:22px;border-right:1px solid var(--line)}
 .project .shot img{width:100%;height:auto;display:block;border-radius:10px;border:1px solid var(--line)}
 .project .body{padding:34px 34px 30px}
-.project h3{font-size:30px;font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+.project h3{font-size:26px;font-weight:700;letter-spacing:-.02em;margin-bottom:12px}
 .project p{color:var(--soft);margin:0 0 18px}
 .tags{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px;padding:0;list-style:none}
 .tags li{font-size:14px;padding:4px 12px;border-radius:999px;font-weight:500}
@@ -70,6 +71,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
   .about{grid-template-columns:1fr;gap:28px}
   section{padding-top:72px}
 }
+@media (max-width:640px){nav ul li:not(:last-child){display:none}}
 @media (max-width:480px){.wrap{padding:0 16px}.project .body{padding:24px 20px}nav ul{gap:14px}}
 .project + .project{margin-top:24px}
 .status{display:inline-block;font-size:13px;font-weight:600;color:#b45309;background:#fdf3e1;border-radius:999px;padding:3px 11px;margin-bottom:12px}
@@ -88,28 +90,49 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
 .gw .chips span{background:#fff;border:1px solid #c7cdfb;border-radius:999px;padding:2px 10px;font-size:12.5px;font-weight:500}
 .note{font-size:12.5px;color:var(--mute);margin-top:8px;text-align:center}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* dark top band */
+.top{background:#0c0f1d;color:#fff;padding-bottom:80px}
+.top nav ul a{color:#b9bfd0}.top nav ul a:hover{color:#fff}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff}
+.brand .mark{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:16px;letter-spacing:.02em;color:#fff;background:linear-gradient(135deg,#0d9488,#4f46e5 55%,#db2777)}
+.brand .nm{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:18px}
+.top nav .cta{border:1.5px solid #fff;color:#fff;border-radius:999px;padding:6px 16px;font-weight:600}
+.top nav .cta:hover{background:#fff;color:#0c0f1d}
+.top .hero h1{color:#fff}
+.top .btn.main{background:#fff;color:#0c0f1d}.top .btn.main:hover{background:#e0e7ff}
+.top .btn.alt{border-color:#5b6280;color:#fff}.top .btn.alt:hover{background:#1b2035;border-color:#fff}
+footer .links{display:flex;gap:20px;flex-wrap:wrap}
+footer a{color:var(--soft)}footer a:hover{color:var(--ind)}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="top"><div class="wrap">
 <nav>
-  <a class="logo" href="./">Parul</a>
+  <a class="brand" href="./" aria-label="Parul Jindal, home"><span class="mark">PJ</span><span class="nm">Parul Jindal</span></a>
   <ul>
     <li><a href="#projects">Projects</a></li>
     <li><a href="#about">About</a></li>
     <li><a href="https://github.com/Parul671992">GitHub</a></li>
+    <li><a href="https://www.linkedin.com/in/jindal-parul/">LinkedIn</a></li>
+    <li><a class="cta" href="mailto:paruljindal67@gmail.com">Contact</a></li>
   </ul>
 </nav>
 
 <header class="hero">
-  <h1>Hi, I'm Parul. I build backend systems and AI agents.<span class="bar" aria-hidden="true"></span></h1>
-  <p>I'm a software engineer in Boston with <strong>7+ years</strong> building services and web apps in Java, Spring Boot and Angular, including as a technical lead at Verizon.</p>
+  <h1>Parul Jindal</h1>
+  <p class="role">Software Engineer, Backend and AI Systems</p>
+  <span class="bar" aria-hidden="true"></span>
+  <p>I'm a software engineer with <strong>7+ years</strong> building services and web apps in Java, Spring Boot and Angular, including as a technical lead at Verizon.</p>
   <p>For the past year I've been building <strong>AI agent systems in Python</strong>, with a focus on the parts that make them trustworthy: evaluation, human review, and clear failure handling.</p>
   <div class="links">
-    <a class="btn main" href="#projects">See my projects</a>
-    <a class="btn alt" href="https://github.com/Parul671992">GitHub profile</a>
+    <a class="btn main" href="mailto:paruljindal67@gmail.com">Get in touch</a>
+    <a class="btn alt" href="https://www.linkedin.com/in/jindal-parul/">LinkedIn</a>
+    <a class="btn alt" href="https://github.com/Parul671992">GitHub</a>
   </div>
 </header>
+</div></div>
+<div class="wrap">
 
 <section id="projects">
   <h2>Projects</h2>
@@ -201,7 +224,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
       <h2>About me</h2>
       <p>At Verizon I built a new backend microservice and its Angular front end for a customer ordering application. Before that, at Orange Business Services, I handled production issues, on-call support and root-cause analysis, and delivered technical projects on my own.</p>
       <p>I hold an MS in Computer Science from Northeastern and an MS in IT Project Management from New England College.</p>
-      <p>I'm looking for AI Engineer and Software Engineer roles in the Boston area or remote.</p>
+      <p>I'm looking for AI Engineer and Software Engineer roles.</p>
     </div>
     <ul class="timeline">
       <li style="--c:var(--vio)"><b>AI agent systems, independent projects</b><span>Past year</span></li>
@@ -216,8 +239,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
 
 <footer>
   <div class="wrap">
-    <span>Parul, Boston MA</span>
-    <a href="https://github.com/Parul671992">github.com/Parul671992</a>
+    <span>Parul Jindal</span>
+    <span class="links"><a href="mailto:paruljindal67@gmail.com">paruljindal67@gmail.com</a><a href="https://www.linkedin.com/in/jindal-parul/">LinkedIn</a><a href="https://github.com/Parul671992">GitHub</a></span>
   </div>
 </footer>
 </body>

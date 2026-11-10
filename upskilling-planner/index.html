@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Agentic Upskilling Planner</title>
-<meta name="description" content="A self-reviewing AI agent that builds verified, week-by-week upskilling plans. Built by Parul with LangGraph, RAG, MCP and Docker.">
+<title>Agentic Upskilling Planner | Parul Jindal</title>
+<meta name="description" content="A self-reviewing AI agent that builds verified, week-by-week upskilling plans. Built by Parul Jindal with LangGraph, RAG, MCP and Docker.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -20,7 +20,7 @@ body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.65 "Instrumen
 a{color:var(--ind);text-underline-offset:3px}
 a:focus-visible,button:focus-visible{outline:3px solid var(--vio);outline-offset:3px;border-radius:6px}
 h1,h2,h3{font-family:"Bricolage Grotesque",sans-serif;line-height:1.1;margin:0}
-h2{font-size:clamp(30px,4.2vw,44px);font-weight:800;letter-spacing:-.02em;margin-bottom:14px}
+h2{font-size:clamp(26px,3.4vw,34px);font-weight:700;letter-spacing:-.02em;margin-bottom:14px}
 h3{font-size:21px;font-weight:700;letter-spacing:-.01em}
 p{margin:0 0 14px}
 .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
@@ -37,15 +37,15 @@ nav ul a:hover{color:var(--ink)}
 
 /* hero */
 .hero{padding:56px 0 0}
-.hero h1{font-size:clamp(46px,8vw,92px);font-weight:800;letter-spacing:-.035em;margin-bottom:22px}
-.hero .lede{font-size:21px}
+.hero h1{font-size:clamp(36px,5vw,56px);font-weight:700;letter-spacing:-.02em;margin-bottom:18px}
+.hero .lede{font-size:19px;color:#c3c8d8}
 .btns{display:flex;gap:12px;flex-wrap:wrap;margin:28px 0 0}
 .btn{display:inline-block;padding:12px 20px;border-radius:999px;font-weight:600;text-decoration:none;font-size:16px}
 .btn.main{background:var(--ink);color:#fff}
 .btn.main:hover{background:var(--ind)}
 .btn.alt{border:1.5px solid var(--ink);color:var(--ink)}
 .btn.alt:hover{background:#fff}
-.by{margin-top:18px;font-size:15px;color:var(--mute)}
+.by{margin-top:18px;font-size:15px;color:#8b93a8}
 
 /* the path: the one memorable thing */
 .path{margin:64px 0 0;display:grid;grid-template-columns:repeat(6,1fr);gap:10px;position:relative}
@@ -60,8 +60,8 @@ nav ul a:hover{color:var(--ink)}
 .s5{background:var(--amb-t);border-color:#f6cf8a}.s5 i{background:var(--amb)}
 .s6{background:linear-gradient(135deg,#6366f1,#db2777);color:#fff}.s6 span{color:#fde7f1}.s6 i{background:#fff;color:var(--pink)}
 .stop.on{transform:translateY(-8px);box-shadow:0 14px 30px -14px rgba(79,70,229,.45)}
-.pathnote{font-size:15px;color:var(--mute);margin-top:14px;min-height:24px}
-.pathnote em{font-style:normal;font-weight:600;color:var(--vio)}
+.pathnote{font-size:15px;color:#9aa3b8;margin-top:14px;min-height:24px}
+.pathnote em{font-style:normal;font-weight:600;color:#c4b5fd}
 
 /* why */
 .why{display:grid;grid-template-columns:1.2fr 1fr;gap:56px;align-items:start}
@@ -130,18 +130,34 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
 }
 @media (max-width:480px){.wrap{padding:0 16px}.path{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
+
+/* dark top band */
+.top{background:#0c0f1d;color:#fff;padding-bottom:80px}
+.top nav ul a{color:#b9bfd0}.top nav ul a:hover{color:#fff}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff}
+.brand .mark{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:16px;letter-spacing:.02em;color:#fff;background:linear-gradient(135deg,#0d9488,#4f46e5 55%,#db2777)}
+.brand .nm{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:18px}
+.top nav .cta{border:1.5px solid #fff;color:#fff;border-radius:999px;padding:6px 16px;font-weight:600}
+.top nav .cta:hover{background:#fff;color:#0c0f1d}
+.top .hero h1{color:#fff}
+.top .stop{color:var(--ink)}.top .stop.s6{color:#fff}
+.top .btn.main{background:#fff;color:#0c0f1d}.top .btn.main:hover{background:#e0e7ff}
+.top .btn.alt{border-color:#5b6280;color:#fff}.top .btn.alt:hover{background:#1b2035;border-color:#fff}
+footer .links{display:flex;gap:20px;flex-wrap:wrap}
+footer a{color:var(--soft)}footer a:hover{color:var(--ind)}
 </style>
 </head>
 <body>
 
-<div class="wrap">
+<div class="top"><div class="wrap">
 <nav>
-  <a class="logo" href="../">Parul</a>
+  <a class="brand" href="../" aria-label="Parul Jindal, home"><span class="mark">PJ</span><span class="nm">Parul Jindal</span></a>
   <ul>
     <li><a href="#how">How it works</a></li>
     <li><a href="#decisions">Decisions</a></li>
     <li><a href="#broke">What broke</a></li>
     <li><a href="https://github.com/Parul671992/Learning-path-generator">Code</a></li>
+    <li><a class="cta" href="../#projects">All projects</a></li>
   </ul>
 </nav>
 
@@ -149,10 +165,11 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
   <h1 class="pname">Agentic Upskilling Planner</h1>
   <p class="lede">An AI agent that builds week-by-week upskilling plans, checks its own work before anyone sees it, and lets a person approve or push back.</p>
   <div class="btns">
-    <a class="btn main" href="#demo">Watch the 2-minute demo</a>
-    <a class="btn alt" href="https://github.com/Parul671992/Learning-path-generator">Read the code on GitHub</a>
+    <!-- DEMO BUTTON: add back when the video is ready: <a class="btn main" href="#demo">Watch the 2-minute demo</a> -->
+    <a class="btn main" href="https://github.com/Parul671992/Learning-path-generator">Read the code on GitHub</a>
+    <a class="btn alt" href="#decisions">See the design decisions</a>
   </div>
-  <p class="by">Built by Parul. Python, LangGraph, RAG, MCP, Docker.</p>
+  <p class="by">Built by Parul Jindal. Python, LangGraph, RAG, MCP, Docker.</p>
 
   <div class="path" id="path" aria-label="The six steps the agent takes">
     <div class="stop s1"><i>1</i><b>You ask</b><span>Topic, level, goal, number of weeks</span></div>
@@ -164,6 +181,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
   </div>
   <p class="pathnote" id="pathnote" aria-live="polite"></p>
 </header>
+</div></div>
+<div class="wrap">
 
 <section id="why">
   <div class="why">
@@ -188,7 +207,8 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
   </figure>
 </section>
 
-<section id="demo">
+<!-- DEMO SECTION: hidden until the video is ready. To show it, remove the word hidden below. -->
+<section id="demo" hidden>
   <h2>See it run</h2>
   <p class="lede">A form submission goes in, the agent researches and reviews, and a formatted plan lands in the inbox. Then the same agent, called from Claude Desktop, pauses for my approval.</p>
   <!-- DEMO VIDEO: replace this whole div with your YouTube embed code when the video is ready -->
@@ -328,15 +348,15 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
 
 <footer>
   <div class="wrap">
-    <span>Built by Parul. Open to AI Engineer and Software Engineer roles in Boston or remote.</span>
-    <a href="https://github.com/Parul671992">github.com/Parul671992</a>
+    <span>Parul Jindal</span>
+    <span class="links"><a href="mailto:paruljindal67@gmail.com">paruljindal67@gmail.com</a><a href="https://www.linkedin.com/in/jindal-parul/">LinkedIn</a><a href="https://github.com/Parul671992">GitHub</a></span>
   </div>
 </footer>
 
 <script>
 // Change the project name here once, and it updates everywhere on the page.
 const PROJECT_NAME = "Agentic Upskilling Planner";
-document.title = PROJECT_NAME + ": a self-reviewing AI agent";
+document.title = PROJECT_NAME + " | Parul Jindal";
 document.querySelectorAll(".pname").forEach(el => el.textContent = PROJECT_NAME);
 
 // Plays the agent's path once when the page loads: steps light up in order,
