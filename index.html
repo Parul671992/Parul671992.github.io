@@ -171,22 +171,8 @@ footer a{color:var(--soft)}footer a:hover{color:var(--ind)}
     </div>
   </a>
 
-  <a class="project" href="https://github.com/Parul671992/Mbta-bus-bunching-detector">
-    <div class="shot">
-      <div class="flow" aria-hidden="true">
-        <div class="node n-teal">Live MBTA bus positions<small>polled every 10 seconds</small></div>
-        <div class="arr"></div>
-        <div class="node n-sky">Ingestion service</div>
-        <div class="arr"></div>
-        <div class="node n-ind">Kafka<small>keyed by route, 3 partitions</small></div>
-        <div class="arr"></div>
-        <div class="row">
-          <div class="node n-vio">Bunching detector<small>flags buses within 300 m</small></div>
-          <div class="node n-pink">Alerts API<small>and live map</small></div>
-        </div>
-        <div class="note">Bad events go to a dead letter topic</div>
-      </div>
-    </div>
+  <a class="project" href="bus-bunching-detector/">
+    <div class="shot"><img src="bus-bunching-detector/how-it-works.png" alt="Diagram of the six steps every bus position takes, from polling the MBTA to the live map" width="3200" height="1560" loading="lazy"></div>
     <div class="body">
       <h3>Real-Time Bus Bunching Detector</h3>
       <p>You wait 20 minutes for the bus, then two arrive together. This system watches live Boston (MBTA) bus data and flags the moment buses on the same route bunch up.</p>
@@ -198,7 +184,7 @@ footer a{color:var(--soft)}footer a:hover{color:var(--ind)}
         <li>Partitioning by route keeps events in order without a shared database</li>
         <li>Dead letter topic, at-least-once delivery and replay of the last 24 hours</li>
       </ul>
-      <span class="more">View the code on GitHub</span>
+      <span class="more">Read the case study</span>
     </div>
   </a>
   <!-- NEXT PROJECT: copy a whole <a class="project"> block above, paste it here, and change the link, picture and text. -->

@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Real-Time Bus Bunching Detector | Parul Jindal</title>
+<meta name="description" content="A real-time system that detects bus bunching on live MBTA data. Built by Parul Jindal with Java 21, Spring Boot, Apache Kafka, Testcontainers and Docker.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#141a2e; --soft:#4a5368; --mute:#7a8296; --paper:#fbfbfe; --line:#e3e6f0;
+  --teal:#0d9488; --sky:#0284c7; --ind:#4f46e5; --vio:#7c3aed; --amb:#d97706; --pink:#db2777; --grn:#16a34a;
+  --teal-t:#e6f7f5; --sky-t:#e6f3fb; --ind-t:#eceefe; --vio-t:#f2edfe; --amb-t:#fdf3e1; --pink-t:#fcebf3; --grn-t:#e8f6ec;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.65 "Instrument Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--ind);text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:3px solid var(--vio);outline-offset:3px;border-radius:6px}
+h1,h2,h3{font-family:"Bricolage Grotesque",sans-serif;line-height:1.1;margin:0}
+h2{font-size:clamp(26px,3.4vw,34px);font-weight:700;letter-spacing:-.02em;margin-bottom:14px}
+h3{font-size:21px;font-weight:700;letter-spacing:-.01em}
+p{margin:0 0 14px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.prose{max-width:680px}
+section{padding:88px 0 0}
+.lede{font-size:19px;color:var(--soft);max-width:640px}
+
+/* nav */
+nav{display:flex;justify-content:space-between;align-items:center;padding:22px 0}
+.logo{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:20px;color:var(--ink);text-decoration:none}
+nav ul{list-style:none;display:flex;gap:22px;margin:0;padding:0;font-size:15px}
+nav ul a{color:var(--soft);text-decoration:none}
+nav ul a:hover{color:var(--ink)}
+
+/* hero */
+.hero{padding:56px 0 0}
+.hero h1{font-size:clamp(36px,5vw,56px);font-weight:700;letter-spacing:-.02em;margin-bottom:18px}
+.hero .lede{font-size:19px;color:#c3c8d8}
+.btns{display:flex;gap:12px;flex-wrap:wrap;margin:28px 0 0}
+.btn{display:inline-block;padding:12px 20px;border-radius:999px;font-weight:600;text-decoration:none;font-size:16px}
+.btn.main{background:var(--ink);color:#fff}
+.btn.main:hover{background:var(--ind)}
+.btn.alt{border:1.5px solid var(--ink);color:var(--ink)}
+.btn.alt:hover{background:#fff}
+.by{margin-top:18px;font-size:15px;color:#8b93a8}
+
+/* the path: the one memorable thing */
+.path{margin:64px 0 0;display:grid;grid-template-columns:repeat(6,1fr);gap:10px;position:relative}
+.stop{border-radius:18px;padding:18px 16px 16px;border:2px solid transparent;transition:transform .35s ease,box-shadow .35s ease;position:relative}
+.stop b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:19px;font-weight:700;margin-bottom:4px}
+.stop span{font-size:14px;color:var(--soft);line-height:1.45;display:block}
+.stop i{font-style:normal;font-size:13px;font-weight:600;display:inline-block;margin-bottom:12px;width:26px;height:26px;border-radius:50%;color:#fff;text-align:center;line-height:26px}
+.s1{background:var(--teal-t);border-color:#9fe0d8}.s1 i{background:var(--teal)}
+.s2{background:var(--sky-t);border-color:#9fd3f2}.s2 i{background:var(--sky)}
+.s3{background:var(--ind-t);border-color:#c3c6fb}.s3 i{background:var(--ind)}
+.s4{background:var(--vio-t);border-color:#d3c2fb}.s4 i{background:var(--vio)}
+.s5{background:var(--amb-t);border-color:#f6cf8a}.s5 i{background:var(--amb)}
+.s6{background:linear-gradient(135deg,#6366f1,#db2777);color:#fff}.s6 span{color:#fde7f1}.s6 i{background:#fff;color:var(--pink)}
+.stop.on{transform:translateY(-8px);box-shadow:0 14px 30px -14px rgba(79,70,229,.45)}
+.pathnote{font-size:15px;color:#9aa3b8;margin-top:14px;min-height:24px}
+.pathnote em{font-style:normal;font-weight:600;color:#c4b5fd}
+
+/* why */
+.why{display:grid;grid-template-columns:1.2fr 1fr;gap:56px;align-items:start}
+.aside{border-left:3px solid var(--amb);padding:4px 0 4px 20px;color:var(--soft);font-size:16px}
+.aside b{color:var(--ink)}
+
+/* figures */
+figure{margin:28px 0 0}
+figure a{display:block;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}
+figure img{display:block;width:100%;height:auto}
+figcaption{font-size:14px;color:var(--mute);margin-top:10px}
+
+/* demo */
+.demo{margin-top:24px;aspect-ratio:16/9;border-radius:18px;background:repeating-linear-gradient(-45deg,#f1f2fa 0 14px,#f7f8fc 14px 28px);border:2px dashed #c9cde0;display:grid;place-items:center;text-align:center;color:var(--soft);padding:20px}
+.demo b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:24px;color:var(--ink)}
+
+/* decisions */
+.decisions{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:32px}
+.dec{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px 24px 20px;border-top:5px solid var(--c)}
+.dec h3{margin-bottom:12px}
+.dec dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:15.5px}
+.dec dt{font-weight:600;color:var(--c)}
+.dec dd{margin:0;color:var(--soft)}
+.c-ind{--c:var(--ind)}.c-vio{--c:var(--vio)}.c-amb{--c:var(--amb)}.c-sky{--c:var(--sky)}.c-teal{--c:var(--teal)}.c-pink{--c:var(--pink)}
+
+/* bugs */
+.bugs{margin-top:28px;border-top:2px solid var(--ink)}
+.bug{display:grid;grid-template-columns:240px 1fr;gap:28px;padding:24px 0;border-bottom:1px solid var(--line)}
+.bug h3{font-size:19px}
+.bug p{color:var(--soft);font-size:16px;margin:0 0 6px}
+.bug p strong{color:var(--ink);font-weight:600}
+
+/* numbers */
+.nums{margin-top:28px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:16px;background:#fff;overflow:hidden}
+.num{padding:24px 22px;border-right:1px solid var(--line)}
+.num:last-child{border-right:0}
+.num b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:36px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.num span{font-size:14.5px;color:var(--soft)}
+.n1 b{color:var(--teal)}.n2 b{color:var(--ind)}.n3 b{color:var(--vio)}.n4 b{color:var(--pink)}
+.honest{font-size:15px;color:var(--mute);margin-top:14px;max-width:720px}
+
+/* stack */
+.stack{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;padding:0;list-style:none}
+.stack li{padding:7px 14px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:15px}
+.stack li b{font-weight:600}
+
+/* next */
+.next{margin-top:24px;padding:0;list-style:none;max-width:720px}
+.next li{padding:12px 0 12px 34px;position:relative;border-bottom:1px solid var(--line);color:var(--soft)}
+.next li::before{content:"";position:absolute;left:4px;top:19px;width:14px;height:14px;border-radius:4px;border:2px solid var(--mute)}
+.next li b{color:var(--ink);font-weight:600}
+
+footer{margin-top:96px;padding:40px 0 56px;border-top:1px solid var(--line);color:var(--soft);font-size:15px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
+
+@media (max-width:860px){
+  nav ul{display:none}
+  .path{grid-template-columns:repeat(2,1fr)}
+  .why{grid-template-columns:1fr;gap:28px}
+  .decisions{grid-template-columns:1fr}
+  .bug{grid-template-columns:1fr;gap:8px}
+  .nums{grid-template-columns:1fr 1fr}
+  .num:nth-child(2){border-right:0}
+  .num:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  section{padding-top:64px}
+}
+@media (max-width:480px){.wrap{padding:0 16px}.path{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
+
+/* dark top band */
+.top{background:#0c0f1d;color:#fff;padding-bottom:80px}
+.top nav ul a{color:#b9bfd0}.top nav ul a:hover{color:#fff}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff}
+.brand .mark{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:16px;letter-spacing:.02em;color:#fff;background:linear-gradient(135deg,#0d9488,#4f46e5 55%,#db2777)}
+.brand .nm{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:18px}
+.top nav .cta{border:1.5px solid #fff;color:#fff;border-radius:999px;padding:6px 16px;font-weight:600}
+.top nav .cta:hover{background:#fff;color:#0c0f1d}
+.top .hero h1{color:#fff}
+.top .stop{color:var(--ink)}.top .stop.s6{color:#fff}
+.top .btn.main{background:#fff;color:#0c0f1d}.top .btn.main:hover{background:#e0e7ff}
+.top .btn.alt{border-color:#5b6280;color:#fff}.top .btn.alt:hover{background:#1b2035;border-color:#fff}
+footer .links{display:flex;gap:20px;flex-wrap:wrap}
+footer a{color:var(--soft)}footer a:hover{color:var(--ind)}
+.status{display:inline-block;font-size:13px;font-weight:600;color:#b45309;background:#fdf3e1;border-radius:999px;padding:3px 11px;margin-bottom:16px}
+</style>
+</head>
+<body>
+
+<div class="top"><div class="wrap">
+<nav>
+  <a class="brand" href="../" aria-label="Parul Jindal, home"><span class="mark">PJ</span><span class="nm">Parul Jindal</span></a>
+  <ul>
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#decisions">Decisions</a></li>
+    <li><a href="#broke">What broke</a></li>
+    <li><a href="https://github.com/Parul671992/Mbta-bus-bunching-detector">Code</a></li>
+    <li><a class="cta" href="../#projects">All projects</a></li>
+  </ul>
+</nav>
+
+<header class="hero">
+  <h1 class="pname">Real-Time Bus Bunching Detector</h1>
+  <p class="lede">You wait 20 minutes for the bus, then two arrive together. This system watches live Boston bus data and flags the moment buses on the same route bunch up.</p>
+  <div class="btns">
+    <a class="btn main" href="https://github.com/Parul671992/Mbta-bus-bunching-detector">Read the code on GitHub</a>
+    <a class="btn alt" href="#decisions">See the design decisions</a>
+  </div>
+  <p class="by">Built by Parul Jindal. Java 21, Spring Boot, Apache Kafka, Docker.</p>
+
+  <div class="path" id="path" aria-label="The six steps every bus position goes through">
+    <div class="stop s1"><i>1</i><b>Poll</b><span>Live MBTA bus positions, every 10 seconds</span></div>
+    <div class="stop s2"><i>2</i><b>Publish</b><span>To Kafka, keyed by route</span></div>
+    <div class="stop s3"><i>3</i><b>Partition</b><span>Each route in order, kept 24 hours</span></div>
+    <div class="stop s4"><i>4</i><b>Detect</b><span>Same route and direction, within 300 m</span></div>
+    <div class="stop s5"><i>5</i><b>Alert</b><span>Once per pair, bad data set aside</span></div>
+    <div class="stop s6"><i>6</i><b>On the map</b><span>Live buses and the routes that bunch most</span></div>
+  </div>
+  <p class="pathnote" id="pathnote" aria-live="polite"></p>
+</header>
+</div></div>
+<div class="wrap">
+
+<section id="why">
+  <div class="why">
+    <div class="prose">
+      <h2>Why I built it</h2>
+      <p>I ride MBTA buses and see this almost every day: a long wait, then two buses arrive together, one packed and one nearly empty. It's called bus bunching. One bus falls a little behind, picks up extra riders at every stop and slows down even more, while the bus behind it catches up.</p>
+      <p>The MBTA publishes the live GPS position of every bus for free. So the question became: can I spot bunching the moment it starts, and keep a record of which routes bunch the most? A dispatcher who knows early can hold the trailing bus for a minute and even out the gap.</p>
+      <p>I also used it to learn Kafka properly, not just call it. I built each guarantee, then broke it on purpose: I stopped services mid-stream, scaled past the number of partitions and fed it garbage, to see what Kafka actually does.</p>
+    </div>
+    <div class="aside">
+      <p><b>The short version for recruiters:</b> three Spring Boot microservices connected by Apache Kafka, running on live MBTA data. Route-keyed partitions for ordered, stateful detection without a database, two consumer groups reading one topic, retries with a dead letter topic, at-least-once delivery, event-time replay, and Testcontainers integration tests in GitHub Actions. It runs with one Docker Compose command.</p>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <h2>How it works</h2>
+  <p class="lede">Every bus position takes the same path. Kafka keeps each route's positions together and in order, so the detector can compare buses without a database.</p>
+  <figure>
+    <a href="how-it-works.png"><img src="how-it-works.png" alt="Six steps: poll, publish, partition, detect, alert, on the map. A replay loop goes from detect back to the partition step, and bad messages go from detect to a dead letter topic." width="3200" height="1560"></a>
+    <figcaption>Click to open full size.</figcaption>
+  </figure>
+</section>
+
+<section id="architecture">
+  <h2>Architecture</h2>
+  <p class="lede">For engineers: the three services, the three topics, which consumer group reads what, and where bad messages go.</p>
+  <figure>
+    <a href="architecture.png"><img src="architecture.png" alt="Detailed architecture: the MBTA V3 API feeds an ingestion service, which publishes to the vehicle-positions topic in Apache Kafka. The detector service reads positions and writes to the bunching-alerts topic and a dead letter topic. The alerts API reads both positions and alerts and serves a live map. Kafka UI shows topics and lag. Foundation: Java 21, Spring for Kafka, shared event records, Testcontainers tests, GitHub Actions and Docker." width="3200" height="1860"></a>
+    <figcaption>Click to open full size.</figcaption>
+  </figure>
+</section>
+
+<section id="decisions">
+  <h2>Architecture decisions</h2>
+  <p class="lede">The choices that shaped the system, what I picked instead, and what each one cost me.</p>
+  <div class="decisions">
+    <article class="dec c-ind">
+      <h3>Key messages by route, not by bus</h3>
+      <dl>
+        <dt>Why</dt><dd>Kafka keeps order only inside a partition, and the key picks the partition. Keying by route sends every route 39 position to one partition and one detector, so it sees all route 39 buses, in order, and can compare them in memory.</dd>
+        <dt>Instead of</dt><dd>Keying by vehicle, which would scatter a route's buses across detectors so none of them could spot two buses close together.</dd>
+        <dt>Cost</dt><dd>A busy route makes its partition busier than the others, and one route can never be split across detectors.</dd>
+      </dl>
+    </article>
+    <article class="dec c-vio">
+      <h3>Event time, not the server clock</h3>
+      <dl>
+        <dt>Why</dt><dd>Staleness and alert cooldowns use each position's own MBTA timestamp. Rewinding to replay a day gives the same alerts it would have given live.</dd>
+        <dt>Instead of</dt><dd>The server clock, which would make every replayed position look hours old, so nothing would ever be detected.</dd>
+        <dt>Cost</dt><dd>The system trusts the MBTA's timestamps to be right.</dd>
+      </dl>
+    </article>
+    <article class="dec c-pink">
+      <h3>A dead letter topic for bad data</h3>
+      <dl>
+        <dt>Why</dt><dd>One message that always fails would otherwise be retried forever and block every message behind it. Unreadable JSON and impossible coordinates go straight to a dead letter topic, with the error in the headers.</dd>
+        <dt>Result</dt><dd>Unexpected errors still get two retries, one second apart, because those can be temporary.</dd>
+        <dt>Cost</dt><dd>An extra topic that someone has to check.</dd>
+      </dl>
+    </article>
+    <article class="dec c-amb">
+      <h3>Commit only after the alert is stored</h3>
+      <dl>
+        <dt>Why</dt><dd>The detector waits for Kafka to confirm each alert before its position counts as read. A crash in between means the position is read again, never skipped.</dd>
+        <dt>Instead of</dt><dd>Sending alerts without waiting, which is faster but can silently lose one.</dd>
+        <dt>Cost</dt><dd>At-least-once delivery: a crash at the wrong moment can repeat an alert.</dd>
+      </dl>
+    </article>
+    <article class="dec c-teal">
+      <h3>Two consumer groups on one topic</h3>
+      <dl>
+        <dt>Why</dt><dd>The detector and the live map both read every position, each in its own consumer group with its own offsets. A slow or stopped detector never affects the map.</dd>
+        <dt>Instead of</dt><dd>Having the detector pass positions along to the map, which would tie the two services together.</dd>
+        <dt>Cost</dt><dd>Each group reads the full stream.</dd>
+      </dl>
+    </article>
+    <article class="dec c-sky">
+      <h3>State in memory, rebuilt from Kafka</h3>
+      <dl>
+        <dt>Why</dt><dd>The detector only needs each bus's latest position from the last 2 minutes, so a plain map in memory is enough. Kafka is the source of truth.</dd>
+        <dt>Instead of</dt><dd>A database, or Kafka Streams state stores, which add moving parts this scale doesn't need yet.</dd>
+        <dt>Cost</dt><dd>After a restart, detection needs about 2 minutes of new positions to warm up.</dd>
+      </dl>
+    </article>
+  </div>
+</section>
+
+<section id="broke">
+  <h2>What broke, and what I learned</h2>
+  <p class="lede">I broke the system on purpose to see how Kafka handles failure. One bug I didn't plan for showed up in CI.</p>
+  <div class="bugs">
+    <div class="bug">
+      <h3>I fed the detector garbage</h3>
+      <div><p><strong>Test:</strong> I sent the plain text "hello" to the positions topic from Kafka UI.</p><p><strong>Result:</strong> it landed on the dead letter topic with the exception in its headers, and the detector kept processing real positions.</p><p><strong>Why it works:</strong> an error-handling deserializer turns the crash into an error the handler can route, and unreadable data is never retried.</p></div>
+    </div>
+    <div class="bug">
+      <h3>I stopped the detector mid-stream</h3>
+      <div><p><strong>Test:</strong> I stopped the detector while the ingestion service kept publishing.</p><p><strong>Result:</strong> its lag grew in Kafka UI. When I restarted it, it resumed from its saved offsets and caught up to zero.</p><p><strong>Lesson:</strong> Kafka is a buffer, not just a pipe. Nothing waits on the consumer, and nothing is lost when it's down.</p></div>
+    </div>
+    <div class="bug">
+      <h3>I scaled to 4 detectors, and 9 consumers sat idle</h3>
+      <div><p><strong>Test:</strong> I ran 4 detector containers.</p><p><strong>Result:</strong> 12 consumers joined the group (4 containers, 3 threads each), but only 3 got a partition. The other 9 waited as standbys.</p><p><strong>Lesson:</strong> partitions cap parallelism. Each container already runs 3 threads, so one container uses all 3 partitions. More readers need more partitions.</p></div>
+    </div>
+    <div class="bug">
+      <h3>The dead letter test failed in CI</h3>
+      <div><p><strong>Symptom:</strong> in GitHub Actions, 9 of 10 tests passed. The integration test expected 2 messages on the dead letter topic and found none.</p><p><strong>Cause:</strong> I built the dead letter producer from the address in the config file. Docker Compose overrides that address, so it worked on my laptop, but the test's Kafka ran on a random port.</p><p><strong>Fix:</strong> build it from the producer Spring had already connected. Lesson: a test against a real broker caught a bug manual testing never would.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="numbers">
+  <h2>By the numbers</h2>
+  <div class="nums">
+    <div class="num n1"><b>10</b><span>Boston bus routes watched live, every 10 seconds</span></div>
+    <div class="num n2"><b>3 of 12</b><span>consumers got work when scaled to 4 containers</span></div>
+    <div class="num n3"><b>24 h</b><span>of positions kept in Kafka for replay</span></div>
+    <div class="num n4"><b>10 of 10</b><span>tests passing, including one against a real Kafka broker</span></div>
+  </div>
+  <p class="honest">To be honest about it: this runs on my laptop with one Kafka broker, not under production load. How often bunching shows up depends on real traffic, so I don't claim alert counts yet.</p>
+</section>
+
+<section id="stack">
+  <h2>Built with</h2>
+  <ul class="stack">
+    <li><b>Java 21</b> Spring Boot 3.5</li>
+    <li><b>Apache Kafka 3.9</b> KRaft mode</li>
+    <li><b>Spring for Apache Kafka</b></li>
+    <li><b>MBTA V3 API</b> live data</li>
+    <li><b>JUnit 5</b> and AssertJ</li>
+    <li><b>Testcontainers</b></li>
+    <li><b>Docker</b> multi-stage image</li>
+    <li><b>Docker Compose</b></li>
+    <li><b>Kafka UI</b></li>
+    <li><b>GitHub Actions</b> CI</li>
+    <li><b>Leaflet</b> live map</li>
+  </ul>
+</section>
+
+<section id="next">
+  <h2>What I'm working on next</h2>
+  <ul class="next">
+    <li><b>Kafka Streams state stores:</b> so detection state survives a restart instead of warming up again.</li>
+    <li><b>Distance along the route:</b> using MBTA route shapes instead of straight-line distance, for winding routes.</li>
+    <li><b>Avro with Schema Registry:</b> to enforce the event contract between services.</li>
+    <li><b>Gap detection:</b> the opposite problem, when buses are spread so far apart that riders wait much longer than the schedule promises.</li>
+  </ul>
+</section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>Parul Jindal</span>
+    <span class="links"><a href="mailto:paruljindal67@gmail.com">paruljindal67@gmail.com</a><a href="https://www.linkedin.com/in/jindal-parul/">LinkedIn</a><a href="https://github.com/Parul671992">GitHub</a></span>
+  </div>
+</footer>
+
+<script>
+// Change the project name here once, and it updates everywhere on the page.
+const PROJECT_NAME = "Real-Time Bus Bunching Detector";
+document.title = PROJECT_NAME + " | Parul Jindal";
+document.querySelectorAll(".pname").forEach(el => el.textContent = PROJECT_NAME);
+
+// Plays two messages once when the page loads: a bus position that triggers an alert,
+// then a broken message that is set aside. Skipped if the visitor prefers less motion.
+(function () {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const stops = document.querySelectorAll("#path .stop");
+  const note = document.getElementById("pathnote");
+  const seq = [
+    [0, "Bus 1871 on route 39 reports its position"],
+    [1, "Published with key <em>39</em>"],
+    [2, "Route 39 always lands in the same partition"],
+    [3, "Bus 1874 is 100 m behind it, <em>that's bunching</em>"],
+    [4, "Alert published"],
+    [5, "A red circle appears on the live map"],
+    [1, "A broken message arrives"],
+    [3, "Can't read it, <em>parked on the dead letter topic</em>"],
+    [5, "The map keeps updating"]
+  ];
+  let i = 0;
+  function step() {
+    stops.forEach(s => s.classList.remove("on"));
+    if (i >= seq.length) { return; }
+    const [idx, msg] = seq[i];
+    stops[idx].classList.add("on");
+    note.innerHTML = msg;
+    i++;
+    setTimeout(step, i === seq.length ? 2200 : 1100);
+  }
+  setTimeout(step, 600);
+})();
+</script>
+</body>
+</html>
