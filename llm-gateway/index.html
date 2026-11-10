@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Multi-Tenant LLM Gateway | Parul Jindal</title>
+<meta name="description" content="A multi-tenant LLM gateway with per-customer API keys, rate limits and budgets, a Redis cache with stampede protection, and automatic failover. Built by Parul Jindal with Java 21, Spring Boot, Redis and PostgreSQL.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#141a2e; --soft:#4a5368; --mute:#7a8296; --paper:#fbfbfe; --line:#e3e6f0;
+  --teal:#0d9488; --sky:#0284c7; --ind:#4f46e5; --vio:#7c3aed; --amb:#d97706; --pink:#db2777; --grn:#16a34a;
+  --teal-t:#e6f7f5; --sky-t:#e6f3fb; --ind-t:#eceefe; --vio-t:#f2edfe; --amb-t:#fdf3e1; --pink-t:#fcebf3; --grn-t:#e8f6ec;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.65 "Instrument Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--ind);text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:3px solid var(--vio);outline-offset:3px;border-radius:6px}
+h1,h2,h3{font-family:"Bricolage Grotesque",sans-serif;line-height:1.1;margin:0}
+h2{font-size:clamp(26px,3.4vw,34px);font-weight:700;letter-spacing:-.02em;margin-bottom:14px}
+h3{font-size:21px;font-weight:700;letter-spacing:-.01em}
+p{margin:0 0 14px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.prose{max-width:680px}
+section{padding:88px 0 0}
+.lede{font-size:19px;color:var(--soft);max-width:640px}
+
+/* nav */
+nav{display:flex;justify-content:space-between;align-items:center;padding:22px 0}
+.logo{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:20px;color:var(--ink);text-decoration:none}
+nav ul{list-style:none;display:flex;gap:22px;margin:0;padding:0;font-size:15px}
+nav ul a{color:var(--soft);text-decoration:none}
+nav ul a:hover{color:var(--ink)}
+
+/* hero */
+.hero{padding:56px 0 0}
+.hero h1{font-size:clamp(36px,5vw,56px);font-weight:700;letter-spacing:-.02em;margin-bottom:18px}
+.hero .lede{font-size:19px;color:#c3c8d8}
+.btns{display:flex;gap:12px;flex-wrap:wrap;margin:28px 0 0}
+.btn{display:inline-block;padding:12px 20px;border-radius:999px;font-weight:600;text-decoration:none;font-size:16px}
+.btn.main{background:var(--ink);color:#fff}
+.btn.main:hover{background:var(--ind)}
+.btn.alt{border:1.5px solid var(--ink);color:var(--ink)}
+.btn.alt:hover{background:#fff}
+.by{margin-top:18px;font-size:15px;color:#8b93a8}
+
+/* the path: the one memorable thing */
+.path{margin:64px 0 0;display:grid;grid-template-columns:repeat(6,1fr);gap:10px;position:relative}
+.stop{border-radius:18px;padding:18px 16px 16px;border:2px solid transparent;transition:transform .35s ease,box-shadow .35s ease;position:relative}
+.stop b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:19px;font-weight:700;margin-bottom:4px}
+.stop span{font-size:14px;color:var(--soft);line-height:1.45;display:block}
+.stop i{font-style:normal;font-size:13px;font-weight:600;display:inline-block;margin-bottom:12px;width:26px;height:26px;border-radius:50%;color:#fff;text-align:center;line-height:26px}
+.s1{background:var(--teal-t);border-color:#9fe0d8}.s1 i{background:var(--teal)}
+.s2{background:var(--sky-t);border-color:#9fd3f2}.s2 i{background:var(--sky)}
+.s3{background:var(--ind-t);border-color:#c3c6fb}.s3 i{background:var(--ind)}
+.s4{background:var(--vio-t);border-color:#d3c2fb}.s4 i{background:var(--vio)}
+.s5{background:var(--amb-t);border-color:#f6cf8a}.s5 i{background:var(--amb)}
+.s6{background:linear-gradient(135deg,#6366f1,#db2777);color:#fff}.s6 span{color:#fde7f1}.s6 i{background:#fff;color:var(--pink)}
+.stop.on{transform:translateY(-8px);box-shadow:0 14px 30px -14px rgba(79,70,229,.45)}
+.pathnote{font-size:15px;color:#9aa3b8;margin-top:14px;min-height:24px}
+.pathnote em{font-style:normal;font-weight:600;color:#c4b5fd}
+
+/* why */
+.why{display:grid;grid-template-columns:1.2fr 1fr;gap:56px;align-items:start}
+.aside{border-left:3px solid var(--amb);padding:4px 0 4px 20px;color:var(--soft);font-size:16px}
+.aside b{color:var(--ink)}
+
+/* figures */
+figure{margin:28px 0 0}
+figure a{display:block;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}
+figure img{display:block;width:100%;height:auto}
+figcaption{font-size:14px;color:var(--mute);margin-top:10px}
+
+/* demo */
+.demo{margin-top:24px;aspect-ratio:16/9;border-radius:18px;background:repeating-linear-gradient(-45deg,#f1f2fa 0 14px,#f7f8fc 14px 28px);border:2px dashed #c9cde0;display:grid;place-items:center;text-align:center;color:var(--soft);padding:20px}
+.demo b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:24px;color:var(--ink)}
+
+/* decisions */
+.decisions{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:32px}
+.dec{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px 24px 20px;border-top:5px solid var(--c)}
+.dec h3{margin-bottom:12px}
+.dec dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:15.5px}
+.dec dt{font-weight:600;color:var(--c)}
+.dec dd{margin:0;color:var(--soft)}
+.c-ind{--c:var(--ind)}.c-vio{--c:var(--vio)}.c-amb{--c:var(--amb)}.c-sky{--c:var(--sky)}.c-teal{--c:var(--teal)}.c-pink{--c:var(--pink)}
+
+/* bugs */
+.bugs{margin-top:28px;border-top:2px solid var(--ink)}
+.bug{display:grid;grid-template-columns:240px 1fr;gap:28px;padding:24px 0;border-bottom:1px solid var(--line)}
+.bug h3{font-size:19px}
+.bug p{color:var(--soft);font-size:16px;margin:0 0 6px}
+.bug p strong{color:var(--ink);font-weight:600}
+
+/* numbers */
+.nums{margin-top:28px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:16px;background:#fff;overflow:hidden}
+.num{padding:24px 22px;border-right:1px solid var(--line)}
+.num:last-child{border-right:0}
+.num b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:36px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.num span{font-size:14.5px;color:var(--soft)}
+.n1 b{color:var(--teal)}.n2 b{color:var(--ind)}.n3 b{color:var(--vio)}.n4 b{color:var(--pink)}
+.honest{font-size:15px;color:var(--mute);margin-top:14px;max-width:720px}
+
+/* stack */
+.stack{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;padding:0;list-style:none}
+.stack li{padding:7px 14px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:15px}
+.stack li b{font-weight:600}
+
+/* next */
+.next{margin-top:24px;padding:0;list-style:none;max-width:720px}
+.next li{padding:12px 0 12px 34px;position:relative;border-bottom:1px solid var(--line);color:var(--soft)}
+.next li::before{content:"";position:absolute;left:4px;top:19px;width:14px;height:14px;border-radius:4px;border:2px solid var(--mute)}
+.next li b{color:var(--ink);font-weight:600}
+
+footer{margin-top:96px;padding:40px 0 56px;border-top:1px solid var(--line);color:var(--soft);font-size:15px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
+
+@media (max-width:860px){
+  nav ul{display:none}
+  .path{grid-template-columns:repeat(2,1fr)}
+  .why{grid-template-columns:1fr;gap:28px}
+  .decisions{grid-template-columns:1fr}
+  .bug{grid-template-columns:1fr;gap:8px}
+  .nums{grid-template-columns:1fr 1fr}
+  .num:nth-child(2){border-right:0}
+  .num:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  section{padding-top:64px}
+}
+@media (max-width:480px){.wrap{padding:0 16px}.path{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
+
+/* dark top band */
+.top{background:#0c0f1d;color:#fff;padding-bottom:80px}
+.top nav ul a{color:#b9bfd0}.top nav ul a:hover{color:#fff}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff}
+.brand .mark{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:16px;letter-spacing:.02em;color:#fff;background:linear-gradient(135deg,#0d9488,#4f46e5 55%,#db2777)}
+.brand .nm{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:18px}
+.top nav .cta{border:1.5px solid #fff;color:#fff;border-radius:999px;padding:6px 16px;font-weight:600}
+.top nav .cta:hover{background:#fff;color:#0c0f1d}
+.top .hero h1{color:#fff}
+.top .stop{color:var(--ink)}.top .stop.s6{color:#fff}
+.top .btn.main{background:#fff;color:#0c0f1d}.top .btn.main:hover{background:#e0e7ff}
+.top .btn.alt{border-color:#5b6280;color:#fff}.top .btn.alt:hover{background:#1b2035;border-color:#fff}
+footer .links{display:flex;gap:20px;flex-wrap:wrap}
+footer a{color:var(--soft)}footer a:hover{color:var(--ind)}
+.status{display:inline-block;font-size:13px;font-weight:600;color:#b45309;background:#fdf3e1;border-radius:999px;padding:3px 11px;margin-bottom:16px}
+</style>
+
+</head>
+<body>
+
+<div class="top"><div class="wrap">
+<nav>
+  <a class="brand" href="../" aria-label="Parul Jindal, home"><span class="mark">PJ</span><span class="nm">Parul Jindal</span></a>
+  <ul>
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#decisions">Decisions</a></li>
+    <li><a href="#broke">What broke</a></li>
+    <li><a href="https://github.com/Parul671992/llm-gateway">Code</a></li>
+    <li><a class="cta" href="../#projects">All projects</a></li>
+  </ul>
+</nav>
+
+<header class="hero">
+  <span class="status">In progress: AWS deployment</span>
+  <h1 class="pname">Multi-Tenant LLM Gateway</h1>
+  <p class="lede">A gateway that sits between apps and LLM providers, so each customer's AI usage stays fast, affordable and within budget, even when a provider goes down.</p>
+  <div class="btns">
+    <a class="btn main" href="https://github.com/Parul671992/llm-gateway">Read the code on GitHub</a>
+    <a class="btn alt" href="#decisions">See the design decisions</a>
+  </div>
+  <p class="by">Built by Parul Jindal. Java 21, Spring Boot, Redis, PostgreSQL, Docker.</p>
+
+  <div class="path" id="path" aria-label="The six steps every request goes through">
+    <div class="stop s1"><i>1</i><b>Request</b><span>An app sends a question with its API key</span></div>
+    <div class="stop s2"><i>2</i><b>Key check</b><span>Hashed key, Redis first, then PostgreSQL</span></div>
+    <div class="stop s3"><i>3</i><b>Rate limit</b><span>Each customer's requests per minute</span></div>
+    <div class="stop s4"><i>4</i><b>Cache</b><span>Same question? Answered in milliseconds</span></div>
+    <div class="stop s5"><i>5</i><b>Budget</b><span>Stopped before a customer overspends</span></div>
+    <div class="stop s6"><i>6</i><b>Answered</b><span>By Groq, or Gemini if Groq is down</span></div>
+  </div>
+  <p class="pathnote" id="pathnote" aria-live="polite"></p>
+</header>
+</div></div>
+<div class="wrap">
+
+<section id="why">
+  <div class="why">
+    <div class="prose">
+      <h2>Why I built it</h2>
+      <p>Every startup adding an AI feature hits the same wall. Each LLM call costs money, even when a hundred users ask the same question. Answers take seconds. The provider rate limits your whole account, so one busy customer can block everyone else. And when the provider has an outage, your feature goes down with it.</p>
+      <p>A gateway in the middle can fix all of that, but only if it is built carefully. A cache that serves stale data, a rate limiter that breaks when Redis does, or a failover that hides real bugs can do more harm than good.</p>
+      <p>So I built it the way I would want it built in production: I broke every feature on purpose, measured what happened, and fixed it before trusting it. Along the way, every caching pattern that comes up in backend interviews became a real feature: cache-aside, write-through, TTLs, eviction, stampedes and drift.</p>
+    </div>
+    <div class="aside">
+      <p><b>The short version for recruiters:</b> a multi-tenant Spring Boot service with hashed API keys, per-tenant rate limits and budgets, a Redis cache with distributed-lock stampede protection, automatic LLM failover behind a circuit breaker, metrics, and 22 automated tests including Testcontainers integration tests. It runs as a production-style Docker image.</p>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <h2>How it works</h2>
+  <p class="lede">Six checks, cheapest answer first. A repeated question is answered from the cache without touching the LLM, and a request that fails a check is stopped before it costs anything.</p>
+  <figure>
+    <a href="how-it-works.png"><img src="how-it-works.png" alt="Six steps: request, key check, rate limit, cache, budget, answered. A cache hit skips straight to the answer, and failing the key, rate limit or budget check returns a clear error before any LLM call." width="3200" height="1560"></a>
+    <figcaption>Click to open full size.</figcaption>
+  </figure>
+</section>
+
+<section id="architecture">
+  <h2>Architecture</h2>
+  <p class="lede">For engineers: the filters, the services, what lives in Redis versus PostgreSQL, and how the router fails over between providers.</p>
+  <figure>
+    <a href="architecture.png"><img src="architecture.png" alt="Detailed architecture: client apps, admins and monitoring enter a Spring Boot gateway with an API key filter, rate limit filter, ask service and LLM router with a circuit breaker, backed by Redis and PostgreSQL, calling Groq with failover to Gemini. Foundation: Java 21, Resilience4j, Micrometer, Testcontainers tests, Problem Details errors and Docker." width="3200" height="1860"></a>
+    <figcaption>Click to open full size.</figcaption>
+  </figure>
+</section>
+
+<section id="decisions">
+  <h2>Architecture decisions</h2>
+  <p class="lede">The choices that shaped the system, what I picked instead, and what each one cost me.</p>
+  <div class="decisions">
+    <article class="dec c-teal">
+      <h3>Cache-aside for answers, write-through for budgets</h3>
+      <dl>
+        <dt>Why</dt><dd>Answers are many and read unevenly, so they fill lazily on a miss. Budgets are read on every request and must be right the moment an admin changes them, so every write updates PostgreSQL and Redis together.</dd>
+        <dt>Instead of</dt><dd>One caching pattern for everything.</dd>
+        <dt>Cost</dt><dd>Two code paths to reason about, and every budget update does two writes.</dd>
+      </dl>
+    </article>
+    <article class="dec c-sky">
+      <h3>A Redis lock for stampedes, not a Java lock</h3>
+      <dl>
+        <dt>Why</dt><dd>SET NX with a TTL lets one request rebuild an answer while the others wait, across every running copy of the app. A Lua script releases the lock only if the caller still owns it, in one atomic step.</dd>
+        <dt>Instead of</dt><dd>A lock inside the JVM, which stops working the moment Kubernetes runs a second pod.</dd>
+        <dt>Cost</dt><dd>Waiters add about 50 ms of polling, and need a timeout and a fallback so nobody waits forever.</dd>
+      </dl>
+    </article>
+    <article class="dec c-ind">
+      <h3>Fail open for the cache, never for security</h3>
+      <dl>
+        <dt>Why</dt><dd>If Redis is down, answers come straight from the LLM and key lookups fall back to PostgreSQL. A cache outage makes the gateway slower, not broken.</dd>
+        <dt>Instead of</dt><dd>Treating Redis as required, which made it a single point of failure.</dd>
+        <dt>Cost</dt><dd>During a Redis outage, rate limiting is skipped. I chose availability, and documented the trade-off.</dd>
+      </dl>
+    </article>
+    <article class="dec c-vio">
+      <h3>Fail over only on "their problem"</h3>
+      <dl>
+        <dt>Why</dt><dd>Timeouts, 429s and 5xx errors might succeed elsewhere, so they go to Gemini. A 400 or 401 is my bug, and failing over would just hide it.</dd>
+        <dt>Result</dt><dd>Only retryable errors count toward the circuit breaker, so bad customer requests can never take Groq out of service for everyone.</dd>
+        <dt>Cost</dt><dd>Classifying errors by hand, and keeping that list right as providers change.</dd>
+      </dl>
+    </article>
+    <article class="dec c-amb">
+      <h3>Per-tenant cache keys</h3>
+      <dl>
+        <dt>Why</dt><dd>Real prompts contain private data. A shared cache could serve one company's answer to another.</dd>
+        <dt>Instead of</dt><dd>One global cache, which has a higher hit rate.</dd>
+        <dt>Cost</dt><dd>Fewer cache hits across tenants. Safe by default was worth it.</dd>
+      </dl>
+    </article>
+    <article class="dec c-pink">
+      <h3>PostgreSQL for money, in whole micro-dollars</h3>
+      <dl>
+        <dt>Why</dt><dd>Spend is updated with one atomic upsert that returns the new total, so concurrent requests never lose a cent. Integers are exact, and costs round up so the gateway never undercharges.</dd>
+        <dt>Instead of</dt><dd>Floating point, or keeping spend only in Redis.</dd>
+        <dt>Cost</dt><dd>A database write on every LLM call, plus a cache copy to keep in sync.</dd>
+      </dl>
+    </article>
+  </div>
+</section>
+
+<section id="broke">
+  <h2>What broke, and how I fixed it</h2>
+  <p class="lede">I broke every feature on purpose before trusting it. These taught me the most.</p>
+  <div class="bugs">
+    <div class="bug">
+      <h3>20 identical requests made 20 LLM calls</h3>
+      <div><p><strong>Symptom:</strong> a load test fired 20 identical questions at the same moment, and every one of them called the LLM.</p><p><strong>Cause:</strong> all 20 checked the cache within a few milliseconds, before the first answer came back. A cache stampede.</p><p><strong>Fix:</strong> a Redis lock so one request fetches and the rest wait. Now 1 call instead of 20, with about 50 ms extra for the waiters.</p></div>
+    </div>
+    <div class="bug">
+      <h3>The fix almost failed on a cold start</h3>
+      <div><p><strong>Symptom:</strong> right after a restart, the first LLM answer took about 6 seconds, while waiters gave up after 5.</p><p><strong>Cause:</strong> a wait timeout tuned for a warm app. One second slower, and all 19 waiters would have stampeded anyway.</p><p><strong>Fix:</strong> a timeout based on measured LLM latency, not a guess. Lesson: test the first request, not just the average one.</p></div>
+    </div>
+    <div class="bug">
+      <h3>A revoked API key kept working</h3>
+      <div><p><strong>Symptom:</strong> I revoked a key, and it still got answers.</p><p><strong>Cause:</strong> the key lookup was cached in Redis for 5 minutes. The database changed, the copy did not. Cache drift, and here a security hole.</p><p><strong>Fix:</strong> delete the cached copy after the database transaction commits, with the TTL as a safety net. A regression test proves a revoked key fails immediately.</p></div>
+    </div>
+    <div class="bug">
+      <h3>A Redis outage froze every request</h3>
+      <div><p><strong>Symptom:</strong> I stopped Redis, and requests hung for a minute, then failed with 500 even though the LLM was fine.</p><p><strong>Cause:</strong> a 60 second default timeout, and a cache treated as required.</p><p><strong>Fix:</strong> 2 second timeouts, then fail open. Requests still get answers during a Redis outage, and the client reconnects on its own when Redis returns.</p></div>
+    </div>
+    <div class="bug">
+      <h3>A wrong admin token got a 400, not a 401</h3>
+      <div><p><strong>Symptom:</strong> an unauthenticated request with a bad body was told what was wrong with the body.</p><p><strong>Cause:</strong> request validation ran before the token check, leaking API details to anyone.</p><p><strong>Fix:</strong> moved authentication into a servlet filter, so it runs before validation and before any controller.</p></div>
+    </div>
+    <div class="bug">
+      <h3>The backup model had been retired</h3>
+      <div><p><strong>Symptom:</strong> during a simulated Groq outage, every request failed with 502.</p><p><strong>Cause:</strong> the Gemini model I chose still appeared in the model list, but was no longer available to new accounts.</p><p><strong>Fix:</strong> a one-line config change, since models live in config, not code. Lesson: test your fallback before you need it.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="numbers">
+  <h2>By the numbers</h2>
+  <div class="nums">
+    <div class="num n1"><b>20 to 1</b><span>LLM calls for 20 identical requests at once</span></div>
+    <div class="num n2"><b>~6 ms</b><span>per cached answer, versus 0.5 to 2 s from the LLM</span></div>
+    <div class="num n3"><b>7 of 7</b><span>requests answered during a simulated Groq outage</span></div>
+    <div class="num n4"><b>22</b><span>automated tests, with real Redis and PostgreSQL</span></div>
+  </div>
+  <p class="honest">To be honest about it: these were measured on my laptop with small samples, not under production load. The circuit breaker opened after 5 failed calls, as configured, and startup dropped from about 70 seconds to 7 after moving to a proper Docker image. Load testing at scale is part of the AWS phase.</p>
+</section>
+
+<section id="stack">
+  <h2>Built with</h2>
+  <ul class="stack">
+    <li><b>Java 21</b> Spring Boot 4</li>
+    <li><b>Redis 8</b> cache, locks, counters</li>
+    <li><b>PostgreSQL 17</b> source of truth</li>
+    <li><b>Flyway</b> migrations</li>
+    <li><b>Resilience4j</b> circuit breaker</li>
+    <li><b>Groq</b> primary LLM</li>
+    <li><b>Gemini</b> fallback LLM</li>
+    <li><b>Micrometer</b> metrics</li>
+    <li><b>JUnit 5</b> and Mockito</li>
+    <li><b>Testcontainers</b></li>
+    <li><b>Docker</b> multi-stage image</li>
+    <li><b>Docker Compose</b></li>
+  </ul>
+</section>
+
+<section id="next">
+  <h2>What I'm working on next</h2>
+  <ul class="next">
+    <li><b>AWS deployment:</b> the image in ECR, running on Kubernetes (k3s) on EC2, with PostgreSQL on RDS.</li>
+    <li><b>Request logs in DynamoDB:</b> high-volume, append-only data that fits NoSQL better than PostgreSQL.</li>
+    <li><b>CI/CD with GitHub Actions:</b> every change tested, then deployed automatically.</li>
+    <li><b>Semantic cache:</b> reuse answers for questions with the same meaning but different wording.</li>
+  </ul>
+</section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>Parul Jindal</span>
+    <span class="links"><a href="mailto:paruljindal67@gmail.com">paruljindal67@gmail.com</a><a href="https://www.linkedin.com/in/jindal-parul/">LinkedIn</a><a href="https://github.com/Parul671992">GitHub</a></span>
+  </div>
+</footer>
+
+<script>
+// Change the project name here once, and it updates everywhere on the page.
+const PROJECT_NAME = "Multi-Tenant LLM Gateway";
+document.title = PROJECT_NAME + " | Parul Jindal";
+document.querySelectorAll(".pname").forEach(el => el.textContent = PROJECT_NAME);
+
+// Plays two requests once when the page loads: a first question that goes to the LLM,
+// then the same question again, answered from the cache. Skipped if the visitor prefers less motion.
+(function () {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const stops = document.querySelectorAll("#path .stop");
+  const note = document.getElementById("pathnote");
+  const seq = [
+    [0, "A question arrives from Acme's app"],
+    [1, "API key is valid"],
+    [2, "Request 14 of 20 this minute"],
+    [3, "Cache miss, <em>taking the stampede lock</em>"],
+    [4, "Within this month's budget"],
+    [5, "Answered by Groq, and saved to the cache"],
+    [0, "The same question again"],
+    [3, "Cache hit in 6 ms, <em>no LLM call</em>"],
+    [5, "Answered"]
+  ];
+  let i = 0;
+  function step() {
+    stops.forEach(s => s.classList.remove("on"));
+    if (i >= seq.length) { return; }
+    const [idx, msg] = seq[i];
+    stops[idx].classList.add("on");
+    note.innerHTML = msg;
+    i++;
+    setTimeout(step, i === seq.length ? 2200 : 1100);
+  }
+  setTimeout(step, 600);
+})();
+</script>
+</body>
+</html>

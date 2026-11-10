@@ -153,22 +153,8 @@ footer a{color:var(--soft)}footer a:hover{color:var(--ind)}
       <span class="more">Read the case study</span>
     </div>
   </a>
-  <a class="project" href="https://github.com/Parul671992/llm-gateway">
-    <div class="shot">
-      <div class="flow" aria-hidden="true">
-        <div class="node n-teal">Client apps<small>each customer has its own API key</small></div>
-        <div class="arr"></div>
-        <div class="node n-ind gw">LLM Gateway<small>Spring Boot</small>
-          <div class="chips"><span>API key check</span><span>Rate limit</span><span>Monthly budget</span><span>Redis cache</span></div>
-        </div>
-        <div class="arr"></div>
-        <div class="row">
-          <div class="node n-vio">Groq<small>primary model</small></div>
-          <div class="node n-amb">Gemini<small>automatic fallback</small></div>
-        </div>
-        <div class="note">A circuit breaker switches to Gemini when Groq fails</div>
-      </div>
-    </div>
+  <a class="project" href="llm-gateway/">
+    <div class="shot"><img src="llm-gateway/how-it-works.png" alt="Diagram of the six checks every request goes through, from request to answer" width="3200" height="1560" loading="lazy"></div>
     <div class="body">
       <span class="status">In progress: AWS deployment</span>
       <h3>Multi-Tenant LLM Gateway</h3>
@@ -181,7 +167,7 @@ footer a{color:var(--soft)}footer a:hover{color:var(--ind)}
         <li>Redis answer cache with stampede protection, so 20 identical requests at once make one LLM call</li>
         <li>Automatic failover from Groq to Gemini with a circuit breaker</li>
       </ul>
-      <span class="more">View the code on GitHub</span>
+      <span class="more">Read the case study</span>
     </div>
   </a>
 
