@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agentic Upskilling Planner</title>
+<meta name="description" content="A self-reviewing AI agent that builds verified, week-by-week upskilling plans. Built by Parul with LangGraph, RAG, MCP and Docker.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#141a2e; --soft:#4a5368; --mute:#7a8296; --paper:#fbfbfe; --line:#e3e6f0;
+  --teal:#0d9488; --sky:#0284c7; --ind:#4f46e5; --vio:#7c3aed; --amb:#d97706; --pink:#db2777; --grn:#16a34a;
+  --teal-t:#e6f7f5; --sky-t:#e6f3fb; --ind-t:#eceefe; --vio-t:#f2edfe; --amb-t:#fdf3e1; --pink-t:#fcebf3; --grn-t:#e8f6ec;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.65 "Instrument Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--ind);text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:3px solid var(--vio);outline-offset:3px;border-radius:6px}
+h1,h2,h3{font-family:"Bricolage Grotesque",sans-serif;line-height:1.1;margin:0}
+h2{font-size:clamp(30px,4.2vw,44px);font-weight:800;letter-spacing:-.02em;margin-bottom:14px}
+h3{font-size:21px;font-weight:700;letter-spacing:-.01em}
+p{margin:0 0 14px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.prose{max-width:680px}
+section{padding:88px 0 0}
+.lede{font-size:19px;color:var(--soft);max-width:640px}
+
+/* nav */
+nav{display:flex;justify-content:space-between;align-items:center;padding:22px 0}
+.logo{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:20px;color:var(--ink);text-decoration:none}
+nav ul{list-style:none;display:flex;gap:22px;margin:0;padding:0;font-size:15px}
+nav ul a{color:var(--soft);text-decoration:none}
+nav ul a:hover{color:var(--ink)}
+
+/* hero */
+.hero{padding:56px 0 0}
+.hero h1{font-size:clamp(46px,8vw,92px);font-weight:800;letter-spacing:-.035em;margin-bottom:22px}
+.hero .lede{font-size:21px}
+.btns{display:flex;gap:12px;flex-wrap:wrap;margin:28px 0 0}
+.btn{display:inline-block;padding:12px 20px;border-radius:999px;font-weight:600;text-decoration:none;font-size:16px}
+.btn.main{background:var(--ink);color:#fff}
+.btn.main:hover{background:var(--ind)}
+.btn.alt{border:1.5px solid var(--ink);color:var(--ink)}
+.btn.alt:hover{background:#fff}
+.by{margin-top:18px;font-size:15px;color:var(--mute)}
+
+/* the path: the one memorable thing */
+.path{margin:64px 0 0;display:grid;grid-template-columns:repeat(6,1fr);gap:10px;position:relative}
+.stop{border-radius:18px;padding:18px 16px 16px;border:2px solid transparent;transition:transform .35s ease,box-shadow .35s ease;position:relative}
+.stop b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:19px;font-weight:700;margin-bottom:4px}
+.stop span{font-size:14px;color:var(--soft);line-height:1.45;display:block}
+.stop i{font-style:normal;font-size:13px;font-weight:600;display:inline-block;margin-bottom:12px;width:26px;height:26px;border-radius:50%;color:#fff;text-align:center;line-height:26px}
+.s1{background:var(--teal-t);border-color:#9fe0d8}.s1 i{background:var(--teal)}
+.s2{background:var(--sky-t);border-color:#9fd3f2}.s2 i{background:var(--sky)}
+.s3{background:var(--ind-t);border-color:#c3c6fb}.s3 i{background:var(--ind)}
+.s4{background:var(--vio-t);border-color:#d3c2fb}.s4 i{background:var(--vio)}
+.s5{background:var(--amb-t);border-color:#f6cf8a}.s5 i{background:var(--amb)}
+.s6{background:linear-gradient(135deg,#6366f1,#db2777);color:#fff}.s6 span{color:#fde7f1}.s6 i{background:#fff;color:var(--pink)}
+.stop.on{transform:translateY(-8px);box-shadow:0 14px 30px -14px rgba(79,70,229,.45)}
+.pathnote{font-size:15px;color:var(--mute);margin-top:14px;min-height:24px}
+.pathnote em{font-style:normal;font-weight:600;color:var(--vio)}
+
+/* why */
+.why{display:grid;grid-template-columns:1.2fr 1fr;gap:56px;align-items:start}
+.aside{border-left:3px solid var(--amb);padding:4px 0 4px 20px;color:var(--soft);font-size:16px}
+.aside b{color:var(--ink)}
+
+/* figures */
+figure{margin:28px 0 0}
+figure a{display:block;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}
+figure img{display:block;width:100%;height:auto}
+figcaption{font-size:14px;color:var(--mute);margin-top:10px}
+
+/* demo */
+.demo{margin-top:24px;aspect-ratio:16/9;border-radius:18px;background:repeating-linear-gradient(-45deg,#f1f2fa 0 14px,#f7f8fc 14px 28px);border:2px dashed #c9cde0;display:grid;place-items:center;text-align:center;color:var(--soft);padding:20px}
+.demo b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:24px;color:var(--ink)}
+
+/* decisions */
+.decisions{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:32px}
+.dec{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px 24px 20px;border-top:5px solid var(--c)}
+.dec h3{margin-bottom:12px}
+.dec dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:15.5px}
+.dec dt{font-weight:600;color:var(--c)}
+.dec dd{margin:0;color:var(--soft)}
+.c-ind{--c:var(--ind)}.c-vio{--c:var(--vio)}.c-amb{--c:var(--amb)}.c-sky{--c:var(--sky)}.c-teal{--c:var(--teal)}.c-pink{--c:var(--pink)}
+
+/* bugs */
+.bugs{margin-top:28px;border-top:2px solid var(--ink)}
+.bug{display:grid;grid-template-columns:240px 1fr;gap:28px;padding:24px 0;border-bottom:1px solid var(--line)}
+.bug h3{font-size:19px}
+.bug p{color:var(--soft);font-size:16px;margin:0 0 6px}
+.bug p strong{color:var(--ink);font-weight:600}
+
+/* numbers */
+.nums{margin-top:28px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:16px;background:#fff;overflow:hidden}
+.num{padding:24px 22px;border-right:1px solid var(--line)}
+.num:last-child{border-right:0}
+.num b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:36px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.num span{font-size:14.5px;color:var(--soft)}
+.n1 b{color:var(--teal)}.n2 b{color:var(--ind)}.n3 b{color:var(--vio)}.n4 b{color:var(--pink)}
+.honest{font-size:15px;color:var(--mute);margin-top:14px;max-width:720px}
+
+/* stack */
+.stack{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;padding:0;list-style:none}
+.stack li{padding:7px 14px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:15px}
+.stack li b{font-weight:600}
+
+/* next */
+.next{margin-top:24px;padding:0;list-style:none;max-width:720px}
+.next li{padding:12px 0 12px 34px;position:relative;border-bottom:1px solid var(--line);color:var(--soft)}
+.next li::before{content:"";position:absolute;left:4px;top:19px;width:14px;height:14px;border-radius:4px;border:2px solid var(--mute)}
+.next li b{color:var(--ink);font-weight:600}
+
+footer{margin-top:96px;padding:40px 0 56px;border-top:1px solid var(--line);color:var(--soft);font-size:15px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
+
+@media (max-width:860px){
+  nav ul{display:none}
+  .path{grid-template-columns:repeat(2,1fr)}
+  .why{grid-template-columns:1fr;gap:28px}
+  .decisions{grid-template-columns:1fr}
+  .bug{grid-template-columns:1fr;gap:8px}
+  .nums{grid-template-columns:1fr 1fr}
+  .num:nth-child(2){border-right:0}
+  .num:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  section{padding-top:64px}
+}
+@media (max-width:480px){.wrap{padding:0 16px}.path{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<nav>
+  <a class="logo" href="../">Parul</a>
+  <ul>
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#decisions">Decisions</a></li>
+    <li><a href="#broke">What broke</a></li>
+    <li><a href="https://github.com/Parul671992/Learning-path-generator">Code</a></li>
+  </ul>
+</nav>
+
+<header class="hero">
+  <h1 class="pname">Agentic Upskilling Planner</h1>
+  <p class="lede">An AI agent that builds week-by-week upskilling plans, checks its own work before anyone sees it, and lets a person approve or push back.</p>
+  <div class="btns">
+    <a class="btn main" href="#demo">Watch the 2-minute demo</a>
+    <a class="btn alt" href="https://github.com/Parul671992/Learning-path-generator">Read the code on GitHub</a>
+  </div>
+  <p class="by">Built by Parul. Python, LangGraph, RAG, MCP, Docker.</p>
+
+  <div class="path" id="path" aria-label="The six steps the agent takes">
+    <div class="stop s1"><i>1</i><b>You ask</b><span>Topic, level, goal, number of weeks</span></div>
+    <div class="stop s2"><i>2</i><b>Research</b><span>Real resources from the web or your files</span></div>
+    <div class="stop s3"><i>3</i><b>Plan</b><span>Week by week, only from what it found</span></div>
+    <div class="stop s4"><i>4</i><b>Self-review</b><span>An AI reviewer checks the fit</span></div>
+    <div class="stop s5"><i>5</i><b>Human check</b><span>Approve, or ask for changes</span></div>
+    <div class="stop s6"><i>6</i><b>Delivered</b><span>By email or in your AI assistant</span></div>
+  </div>
+  <p class="pathnote" id="pathnote" aria-live="polite"></p>
+</header>
+
+<section id="why">
+  <div class="why">
+    <div class="prose">
+      <h2>Why I built it</h2>
+      <p>Most AI demos stop at "the model gave an answer." I wanted to work on the harder part: how do you know the answer is any good, and what happens when it isn't?</p>
+      <p>A learning plan was a good test for that. It has hard rules a computer can check (does it fit in 4 weeks? does every resource actually exist?) and softer ones that need judgment (is this too advanced for a beginner?). So the agent drafts a plan, a second AI reviews it, and if the plan doesn't hold up, it goes back for another round. A person can step in at the end and overrule both.</p>
+      <p>I spent more time testing, breaking and fixing this than building the first version, and that's the part I'm proudest of.</p>
+    </div>
+    <div class="aside">
+      <p><b>The short version for recruiters:</b> a multi-step AI agent with a self-correction loop, retrieval over your own documents, a human approval step, an automated evaluation suite, and a tool API that other AI apps can call. It runs in Docker.</p>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <h2>How it works</h2>
+  <p class="lede">Six steps, two loops. If the reviewer isn't satisfied, the plan gets reworked, up to three rounds. If a person asks for changes, their instructions win.</p>
+  <figure>
+    <a href="how-it-works.png"><img src="how-it-works.png" alt="Six steps: you ask, research, plan and write, self-review, human approval, delivered. A loop sends weak plans back from self-review to planning, and a second loop sends human change requests back to planning." width="3200" height="1560"></a>
+    <figcaption>Click to open full size.</figcaption>
+  </figure>
+</section>
+
+<section id="demo">
+  <h2>See it run</h2>
+  <p class="lede">A form submission goes in, the agent researches and reviews, and a formatted plan lands in the inbox. Then the same agent, called from Claude Desktop, pauses for my approval.</p>
+  <!-- DEMO VIDEO: replace this whole div with your YouTube embed code when the video is ready -->
+  <div class="demo"><div><b>Demo video coming soon</b>Recording in progress</div></div>
+</section>
+
+<section id="architecture">
+  <h2>Architecture</h2>
+  <p class="lede">For engineers: the full picture, from the three ways in, through the LangGraph agent, down to what it runs on.</p>
+  <figure>
+    <a href="architecture.png"><img src="architecture.png" alt="Detailed architecture: entry points (n8n web form, Claude Desktop, Python) connect through an MCP server to a LangGraph agent with research, plan, write, critique, human review and final plan nodes, supported by Groq, Pydantic, SQLite checkpoints, an evaluation suite, LangSmith and Docker Compose." width="3200" height="1760"></a>
+    <figcaption>Click to open full size.</figcaption>
+  </figure>
+</section>
+
+<section id="decisions">
+  <h2>Architecture decisions</h2>
+  <p class="lede">The choices that shaped the system, what I picked instead, and what each one cost me.</p>
+  <div class="decisions">
+    <article class="dec c-ind">
+      <h3>LangGraph for the main version, not CrewAI</h3>
+      <dl>
+        <dt>Why</dt><dd>The critique loop is a cycle, and LangGraph supports cycles and saved state natively.</dd>
+        <dt>Instead of</dt><dd>CrewAI, which I built in full to compare. Its sequential mode needed a hand-written outer loop, and hierarchical mode hit a known bug.</dd>
+        <dt>Cost</dt><dd>More code to write by hand than CrewAI's role-based setup.</dd>
+      </dl>
+    </article>
+    <article class="dec c-vio">
+      <h3>Code decides when to stop, not the model</h3>
+      <dl>
+        <dt>Why</dt><dd>An LLM reviewer can keep finding small issues forever. A hard cap of 3 rounds in the routing code guarantees the run ends.</dd>
+        <dt>Instead of</dt><dd>Trusting the reviewer to say "good enough" on its own.</dd>
+        <dt>Cost</dt><dd>A plan can hit the cap without approval, so it gets a note asking for a manual look.</dd>
+      </dl>
+    </article>
+    <article class="dec c-sky">
+      <h3>One shape for web and document results</h3>
+      <dl>
+        <dt>Why</dt><dd>Web search and retrieval from your own files both return the same SearchResult structure, so the planner never knows which one ran.</dd>
+        <dt>Result</dt><dd>Adding RAG mode needed zero changes to planning, writing or review.</dd>
+        <dt>Cost</dt><dd>Document chunks have to fit fields designed for web pages, so the file path stands in for a URL and the page number goes in the title.</dd>
+      </dl>
+    </article>
+    <article class="dec c-amb">
+      <h3>The human outranks the AI reviewer</h3>
+      <dl>
+        <dt>Why</dt><dd>Human feedback lives in its own field that is never overwritten, and both the planner and the reviewer must follow it.</dd>
+        <dt>Instead of</dt><dd>Sharing one feedback field, which let the AI reviewer erase the person's instructions.</dd>
+        <dt>Cost</dt><dd>Prompts get longer as feedback piles up across rounds.</dd>
+      </dl>
+    </article>
+    <article class="dec c-teal">
+      <h3>Saved state in a file, so a review can wait</h3>
+      <dl>
+        <dt>Why</dt><dd>The graph pauses for a person and saves its full state to a SQLite file. A completely new process can pick it up later with just an ID.</dd>
+        <dt>Instead of</dt><dd>In-memory state, which disappears the moment the program stops.</dd>
+        <dt>Cost</dt><dd>Loading saved objects is a security risk, so only two known classes are allowed back in.</dd>
+      </dl>
+    </article>
+    <article class="dec c-pink">
+      <h3>Two tools for review, not one</h3>
+      <dl>
+        <dt>Why</dt><dd>An MCP tool call is a single request and response, so it can't sit and wait for a human. One tool starts the review, another resumes it.</dd>
+        <dt>Result</dt><dd>Any MCP client, like Claude Desktop or n8n, can run the full human-approval flow.</dd>
+        <dt>Cost</dt><dd>The caller has to keep track of the review ID between calls.</dd>
+      </dl>
+    </article>
+  </div>
+</section>
+
+<section id="broke">
+  <h2>What broke, and how I fixed it</h2>
+  <p class="lede">The bugs taught me more than the build did.</p>
+  <div class="bugs">
+    <div class="bug">
+      <h3>The reviewer never said yes</h3>
+      <div><p><strong>Symptom:</strong> every single run hit the 3-round cap.</p><p><strong>Cause:</strong> my prompt said "be critical, not lenient" but never defined good enough.</p><p><strong>Fix:</strong> explicit approval criteria. Runs now finish in 1 to 2 rounds. Lesson: vague instructions give an LLM inconsistent behavior.</p></div>
+    </div>
+    <div class="bug">
+      <h3>A book that didn't exist</h3>
+      <div><p><strong>Symptom:</strong> on its first runs, my eval suite flagged a plan recommending a book that search never returned.</p><p><strong>Cause:</strong> the prompt forbade inventing resources, but nothing checked.</p><p><strong>Fix:</strong> an automatic grounding check on every resource and every link, with unit tests that feed it fake plans to prove it catches them.</p></div>
+    </div>
+    <div class="bug">
+      <h3>The AI overruled the human</h3>
+      <div><p><strong>Symptom:</strong> I rejected a plan with "use only YouTube videos," and the reviewer kept rejecting the compliant plans.</p><p><strong>Cause:</strong> the reviewer never saw my feedback, and its own notes overwrote mine.</p><p><strong>Fix:</strong> a separate human feedback field that outranks the reviewer.</p></div>
+    </div>
+    <div class="bug">
+      <h3>A loop that silently stopped looping</h3>
+      <div><p><strong>Symptom:</strong> in the CrewAI version, the reviewer rejected the same write-up three rounds in a row. It looked like the reviewer was too harsh.</p><p><strong>Cause:</strong> the writer task was returning cached output, word for word, even though the plan had changed. I caught it because the write-up still named a course that no longer existed anywhere in the plan.</p><p><strong>Fix:</strong> turned off caching on every task. One of 5 framework bugs I documented in the <a href="https://github.com/Parul671992/Learning-path-generator/blob/main/COMPARISON.md">comparison write-up</a>.</p></div>
+    </div>
+    <div class="bug">
+      <h3>Random timeouts in Claude Desktop</h3>
+      <div><p><strong>Symptom:</strong> the MCP server sometimes failed to connect, with no code change.</p><p><strong>Cause:</strong> the embeddings library quietly checked the internet on every start.</p><p><strong>Fix:</strong> offline mode, and in Docker the model is downloaded once at build time.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="numbers">
+  <h2>By the numbers</h2>
+  <div class="nums">
+    <div class="num n1"><b>5 to 13 s</b><span>per plan in the baseline eval run</span></div>
+    <div class="num n2"><b>6 of 6</b><span>eval cases passed in the baseline run</span></div>
+    <div class="num n3"><b>15</b><span>unit tests for the eval checks</span></div>
+    <div class="num n4"><b>5</b><span>framework bugs found and documented</span></div>
+  </div>
+  <p class="honest">To be honest about it: results vary between runs. Later runs on the same code sometimes failed the grounding check, which is exactly why the eval suite exists, and why my next step is reporting a pass rate over many runs instead of one.</p>
+</section>
+
+<section id="stack">
+  <h2>Built with</h2>
+  <ul class="stack">
+    <li><b>LangGraph</b> agent orchestration</li>
+    <li><b>CrewAI</b> comparison build</li>
+    <li><b>Groq</b> gpt-oss-120b</li>
+    <li><b>Tavily</b> web search</li>
+    <li><b>Chroma</b> + local embeddings for RAG</li>
+    <li><b>Pydantic</b> structured outputs</li>
+    <li><b>SQLite</b> checkpoints</li>
+    <li><b>MCP</b> FastMCP server</li>
+    <li><b>Docker</b> Compose</li>
+    <li><b>n8n</b> form-to-email workflow</li>
+    <li><b>LangSmith</b> tracing</li>
+    <li><b>pytest</b></li>
+  </ul>
+</section>
+
+<section id="next">
+  <h2>What I'm working on next</h2>
+  <ul class="next">
+    <li><b>A public link</b> on AWS, with an API key and rate limits, so anyone can try it.</li>
+    <li><b>A backup LLM provider</b> so the agent keeps working when the main one fails.</li>
+    <li><b>Evaluation in CI</b> so every code change is tested for quality before it merges.</li>
+    <li><b>Real users:</b> a group of testers, and the numbers from their runs.</li>
+  </ul>
+</section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>Built by Parul. Open to AI Engineer and Software Engineer roles in Boston or remote.</span>
+    <a href="https://github.com/Parul671992">github.com/Parul671992</a>
+  </div>
+</footer>
+
+<script>
+// Change the project name here once, and it updates everywhere on the page.
+const PROJECT_NAME = "Agentic Upskilling Planner";
+document.title = PROJECT_NAME + ": a self-reviewing AI agent";
+document.querySelectorAll(".pname").forEach(el => el.textContent = PROJECT_NAME);
+
+// Plays the agent's path once when the page loads: steps light up in order,
+// including one trip around the review loop. Skipped if the visitor prefers less motion.
+(function () {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const stops = document.querySelectorAll("#path .stop");
+  const note = document.getElementById("pathnote");
+  const seq = [
+    [0, "Request received"],
+    [1, "Finding real resources"],
+    [2, "Drafting the plan"],
+    [3, "Reviewer: pacing is off, <em>sending it back</em>"],
+    [2, "Revising the plan"],
+    [3, "Reviewer: approved"],
+    [4, "Waiting for a person to approve"],
+    [5, "Plan delivered"]
+  ];
+  let i = 0;
+  function step() {
+    stops.forEach(s => s.classList.remove("on"));
+    if (i >= seq.length) { return; }
+    const [idx, msg] = seq[i];
+    stops[idx].classList.add("on");
+    note.innerHTML = msg;
+    i++;
+    setTimeout(step, i === seq.length ? 2200 : 1100);
+  }
+  setTimeout(step, 600);
+})();
+</script>
+</body>
+</html>
